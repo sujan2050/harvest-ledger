@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MapPin, Landmark, User, TicketCheck, Clock } from "lucide-react";
+import { MapPin, Landmark, User, TicketCheck, Clock, CalendarDays, Timer, Building2 } from "lucide-react";
+import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { StatusBadge } from "@/components/StatusBadge";
+import { StatCard } from "@/components/StatCard";
 import {
   Button,
   Card,
@@ -98,6 +100,7 @@ function FarmerPage() {
       setToken(data);
       setQuantity("");
       void qc.invalidateQueries({ queryKey: ["queue-status"] });
+      toast.success("Token generated successfully", { description: "Your place in the procurement queue is confirmed." });
     },
     onError: (err) => setFormError(err instanceof Error ? err.message : "Could not create token."),
   });
@@ -124,6 +127,12 @@ function FarmerPage() {
       <Navbar />
       <main className="mx-auto max-w-6xl px-6 py-8">
         <PageHeader title="Farmer Dashboard" subtitle="Your profile, tokens and queue status." />
+
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <StatCard icon={CalendarDays} value={current ? "1" : "0"} label="Active tokens" note="Current procurement cycle" accent="green" />
+          <StatCard icon={Timer} value="5 min" label="Live refresh" note="Queue status interval" accent="amber" />
+          <StatCard icon={Building2} value={centerName ?? "—"} label="Selected center" note="Current visit" accent="blue" />
+        </div>
 
         <Card className="mb-6">
           {profile.isLoading ? (
@@ -200,12 +209,18 @@ function FarmerPage() {
             {current ? (
               <>
                 <div className="ticket-stub p-7 text-center">
+                  <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground uppercase">
+                    <span>KrishiSetu queue receipt</span><span>Admit one</span>
+                  </div>
                   <p className="text-xs tracking-[0.18em] text-muted-foreground uppercase">
                     Your token
                   </p>
                   <p className="mt-2 font-mono text-6xl font-bold text-primary">
                     {String(current.tokenNumber ?? current.id)}
                   </p>
+                  <div className="absolute right-6 top-16 grid grid-cols-5 gap-0.5 opacity-40" aria-hidden="true">
+                    {Array.from({ length: 25 }).map((_, i) => <span key={i} className={i % 3 ? "size-1 bg-primary" : "size-1"} />)}
+                  </div>
                   <div className="my-5 border-t border-dashed border-border" />
                   <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
                     <span>{current.centerName ?? centerName ?? "Centre"}</span>
