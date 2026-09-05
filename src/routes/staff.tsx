@@ -172,6 +172,15 @@ function StaffPage() {
               </Button>
             }
           >
+            {(centers.isError || queue.isError) && (
+              <div className="mb-4">
+                <ErrorText>
+                  {(centers.error ?? queue.error) instanceof Error
+                    ? ((centers.error ?? queue.error) as Error).message
+                    : "Could not reach the procurement API."}
+                </ErrorText>
+              </div>
+            )}
             {actionError && (
               <div className="mb-4">
                 <ErrorText>{actionError}</ErrorText>

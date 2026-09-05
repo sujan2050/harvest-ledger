@@ -62,6 +62,14 @@ function DisplayPage() {
         </select>
       </div>
 
+      {(centers.isError || queue.isError) && (
+        <p className="mx-auto mt-6 max-w-6xl text-center text-sm text-[#F4B0A0]">
+          {(centers.error ?? queue.error) instanceof Error
+            ? ((centers.error ?? queue.error) as Error).message
+            : "Could not reach the procurement API."}
+        </p>
+      )}
+
       <section className="mx-auto mt-10 max-w-6xl">
         <p className="text-center text-sm tracking-[0.3em] text-primary-foreground/60 uppercase">
           Now serving
