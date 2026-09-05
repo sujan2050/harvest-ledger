@@ -106,7 +106,11 @@ function CentersPanel() {
   return (
     <div className="space-y-6">
       <Card title="Procurement centres">
-        {centers.isLoading ? (
+        {centers.isError ? (
+          <ErrorText>
+            {centers.error instanceof Error ? centers.error.message : "Could not load centres."}
+          </ErrorText>
+        ) : centers.isLoading ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
               <Skeleton key={i} className="h-11" />
