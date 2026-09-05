@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, PhoneCall, Users } from "lucide-react";
+import { CheckCircle2, PhoneCall, Users, Timer, BadgeCheck } from "lucide-react";
+import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
 import { StatusBadge } from "@/components/StatusBadge";
+import { StatCard } from "@/components/StatCard";
 import {
   Button,
   Card,
@@ -84,6 +86,7 @@ function StaffPage() {
     onSuccess: () => {
       setActionError(null);
       void refresh();
+      toast.success("Next farmer called");
     },
     onError: (e) => setActionError(e instanceof Error ? e.message : "Could not call the next token."),
   });
@@ -93,6 +96,7 @@ function StaffPage() {
     onSuccess: () => {
       setActionError(null);
       void refresh();
+      toast.success("Token marked complete");
     },
     onError: (e) => setActionError(e instanceof Error ? e.message : "Could not complete the token."),
   });
@@ -124,6 +128,7 @@ function StaffPage() {
       setActualQty("");
       setPricePerUnit("");
       void refresh();
+      toast.success("Procurement recorded", { description: "The total has been calculated and saved." });
     },
     onError: (e) => setFormError(e instanceof Error ? e.message : "Could not record procurement."),
   });
@@ -159,6 +164,12 @@ function StaffPage() {
               </SelectInput>
             </Field>
           </div>
+        </div>
+
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <StatCard icon={Users} value={tokens.filter((t) => normalizeStatus(t.status) === "WAITING").length} label="Waiting now" note="Live center queue" accent="green" />
+          <StatCard icon={BadgeCheck} value={tokens.filter((t) => normalizeStatus(t.status) === "COMPLETED").length} label="Completed" note="Visible queue records" accent="amber" />
+          <StatCard icon={Timer} value="5 sec" label="Queue refresh" note="Automatic live updates" accent="blue" />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">

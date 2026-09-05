@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Wheat } from "lucide-react";
+import { Building2, Wheat, Network, CircleCheckBig } from "lucide-react";
+import { toast } from "sonner";
 import { Navbar } from "@/components/Navbar";
+import { StatCard } from "@/components/StatCard";
 import {
   Button,
   Card,
@@ -41,12 +43,19 @@ type Tab = "centers" | "crops";
 function AdminPage() {
   const { ready } = useRequireRole(["ADMIN"]);
   const [tab, setTab] = useState<Tab>("centers");
+  const centerStats = useQuery({ queryKey: ["centers"], queryFn: async () => asArray<Center>(await api("/centers")), enabled: ready });
+  const cropStats = useQuery({ queryKey: ["crop-types"], queryFn: async () => asArray<CropType>(await api("/crop-types")), enabled: ready });
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="mx-auto max-w-7xl px-6 py-8">
         <PageHeader title="Admin Panel" subtitle="Reference data for the procurement network." />
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <StatCard icon={Building2} value={centerStats.data?.length ?? "—"} label="Total centers" note="Procurement network" accent="green" />
+          <StatCard icon={Wheat} value={cropStats.data?.length ?? "—"} label="Crop types" note="Configured commodities" accent="amber" />
+          <StatCard icon={Network} value={centerStats.isError || cropStats.isError ? "Check" : "Live"} label="Network status" note="Reference services" accent="blue" />
+        </div>
         <div className="grid gap-6 md:grid-cols-[220px_1fr]">
           <nav className="card-surface h-fit p-2">
             {[
@@ -99,6 +108,7 @@ function CentersPanel() {
       setForm({ name: "", location: "", capacity: "", operatingHours: "" });
       setError(null);
       void qc.invalidateQueries({ queryKey: ["centers"] });
+      toast.success("Center added successfully");
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Could not add centre."),
   });
@@ -225,6 +235,7 @@ function CropsPanel() {
       setForm({ name: "", category: "", unit: "", basePrice: "", mspPrice: "" });
       setError(null);
       void qc.invalidateQueries({ queryKey: ["crop-types"] });
+      toast.success("Crop type added successfully");
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Could not add crop type."),
   });

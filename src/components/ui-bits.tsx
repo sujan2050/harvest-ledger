@@ -86,7 +86,7 @@ export function Button({
     <button
       {...props}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium shadow-sm transition-all duration-150 hover:scale-[1.02] hover:shadow-button active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:scale-100 disabled:hover:shadow-sm",
         variants[variant],
         className,
       )}
@@ -140,10 +140,10 @@ export function EmptyState({
   description?: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 px-6 py-14 text-center">
-      <div className="text-muted-foreground/70">{icon}</div>
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      {description && <p className="max-w-sm text-xs text-muted-foreground">{description}</p>}
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <div className="grid size-16 place-items-center rounded-full border border-border bg-muted text-muted-foreground">{icon}</div>
+      <p className="mt-5 font-display text-lg font-semibold text-foreground">{title}</p>
+      {description && <p className="mt-1.5 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>}
     </div>
   );
 }
