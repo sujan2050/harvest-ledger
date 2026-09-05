@@ -70,6 +70,14 @@ export async function api<T = unknown>(
     throw new ApiError("Could not reach the server. Check that the API is running.", 0);
   }
 
+  const contentType = res.headers.get("content-type") ?? "";
+  if (contentType.includes("text/html")) {
+    throw new ApiError(
+      `No API found at ${API_BASE_URL}. Start the Spring Boot service or set VITE_API_BASE_URL.`,
+      res.status,
+    );
+  }
+
   const text = await res.text();
   let data: unknown = null;
   if (text) {
