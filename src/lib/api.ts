@@ -9,8 +9,8 @@ export type Role = "FARMER" | "STAFF" | "ADMIN";
 export interface AuthUser {
   username: string;
   role: Role;
-  fullName?: string;
-  id?: number | string;
+  fullName?: string | undefined;
+  id?: number | string | undefined;
 }
 
 export function getToken(): string | null {
@@ -64,7 +64,7 @@ export async function api<T = unknown>(
     res = await fetch(`${API_BASE_URL}${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   } catch {
     throw new ApiError("Could not reach the server. Check that the API is running.", 0);
