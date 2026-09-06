@@ -109,11 +109,20 @@ function StaffPage() {
   const [grade, setGrade] = useState<Grade>("A");
   const [pricePerUnit, setPricePerUnit] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ total: number; qty: number; price: number } | null>(null);
+  const [result, setResult] = useState<
+    | {
+        totalAmount: number;
+        actualQuantity: number;
+        pricePerUnit: number;
+        qualityGrade: string;
+        paymentStatus?: string;
+      }
+    | null
+  >(null);
 
   const record = useMutation({
     mutationFn: () =>
-      api<Record<string, unknown>>("/procurement", {
+      api<Procurement>("/procurement", {
         method: "POST",
         body: {
           tokenId: called?.id,
@@ -123,10 +132,15 @@ function StaffPage() {
         },
       }),
     onSuccess: (data) => {
-      const qty = Number(actualQty);
-      const price = Number(pricePerUnit);
-      const total = Number(data?.["totalAmount"] ?? data?.["total"] ?? qty * price);
-      setResult({ total, qty, price });
+      const actualQuantity = data?.actualQuantity ?? Number(actualQty);
+      const price = data?.pricePerUnit ?? Number(pricePerUnit);
+      setResult({
+        totalAmount: data?.totalAmount ?? actualQuantity * price,
+        actualQuantity,
+        pricePerUnit: price,
+        qualityGrade: data?.qualityGrade ?? grade,
+        ...(data?.paymentStatus ? { paymentStatus: data.paymentStatus } : {}),
+      });
       setFormError(null);
       setActualQty("");
       setPricePerUnit("");
@@ -135,6 +149,7 @@ function StaffPage() {
     },
     onError: (e) => setFormError(e instanceof Error ? e.message : "Could not record procurement."),
   });
+
 
   function submitProcurement(e: React.FormEvent) {
     e.preventDefault();
