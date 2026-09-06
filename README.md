@@ -210,15 +210,7 @@ links in Inter, small avatar/initials circle + logout on the right. Keep it slim
 
 Use environment variables for the API base URL so I can change it later when deploying.
 
-This project was built with [Lovable](https://lovable.dev).
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/70903f7a-ad33-4fac-aa4b-c1216f7db548).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
