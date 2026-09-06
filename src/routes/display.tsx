@@ -81,7 +81,6 @@ function DisplayPage() {
           }`}
         >
           <p
-            className="font-mono leading-none font-bold"
             className="font-mono leading-none font-bold text-display-soft drop-shadow-[0_0_32px_rgba(201,132,60,0.28)]"
             style={{ fontSize: "clamp(88px, 18vw, 210px)" }}
           >
