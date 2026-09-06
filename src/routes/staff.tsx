@@ -250,7 +250,7 @@ function StaffPage() {
                         </td>
                         <td className="px-4 py-3">{farmerNameOf(t)}</td>
                         <td className="px-4 py-3">{cropNameOf(t)}</td>
-                        <td className="px-4 py-3 text-right font-mono">{t.quantity ?? "—"}</td>
+                        <td className="px-4 py-3 text-right font-mono">{quantityOf(t) ?? "—"}</td>
                         <td className="px-4 py-3">
                           <StatusBadge status={t.status} />
                         </td>
