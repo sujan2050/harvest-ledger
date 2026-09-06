@@ -61,10 +61,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+const fallbackAuth: AuthContextValue = {
+  user: null,
+  ready: false,
+  login: async () => {
+    throw new Error("Auth is not ready yet.");
+  },
+  logout: () => {},
+};
+
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
+  return ctx ?? fallbackAuth;
 }
 
 export function homeForRole(role: Role) {
