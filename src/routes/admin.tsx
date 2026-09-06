@@ -185,22 +185,34 @@ function CentersPanel() {
               onChange={(e) => setForm({ ...form, location: e.target.value })}
             />
           </Field>
-          <Field label="Capacity">
+          <Field label="Capacity per day">
             <TextInput
               type="number"
               min="0"
-              value={form.capacity}
-              onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+              value={form.capacityPerDay}
+              onChange={(e) => setForm({ ...form, capacityPerDay: e.target.value })}
               className="text-right font-mono"
             />
           </Field>
-          <Field label="Operating hours">
-            <TextInput
-              value={form.operatingHours}
-              onChange={(e) => setForm({ ...form, operatingHours: e.target.value })}
-              placeholder="09:00 – 17:00"
-            />
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Opens at">
+              <TextInput
+                type="time"
+                value={form.operatingStart}
+                onChange={(e) => setForm({ ...form, operatingStart: e.target.value })}
+                className="font-mono"
+              />
+            </Field>
+            <Field label="Closes at">
+              <TextInput
+                type="time"
+                value={form.operatingEnd}
+                onChange={(e) => setForm({ ...form, operatingEnd: e.target.value })}
+                className="font-mono"
+              />
+            </Field>
+          </div>
+
           <div className="sm:col-span-2">
             <ErrorText>{error}</ErrorText>
             <Button type="submit" disabled={add.isPending} className="mt-2">
