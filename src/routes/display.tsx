@@ -1,8 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Radio, Users } from "lucide-react";
+import { Coffee, Radio, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { api, asArray, normalizeStatus, type Center, type QueueToken } from "@/lib/api";
+import {
+  api,
+  asArray,
+  cropNameOf,
+  farmerNameOf,
+  normalizeStatus,
+  quantityOf,
+  type Center,
+  type QueueToken,
+} from "@/lib/api";
+
 
 export const Route = createFileRoute("/display")({
   ssr: false,
@@ -80,16 +90,30 @@ function DisplayPage() {
             serving ? "pulse-called" : ""
           }`}
         >
-          <p
-            className="font-mono leading-none font-bold text-display-soft drop-shadow-[0_0_32px_rgba(201,132,60,0.28)]"
-            style={{ fontSize: "clamp(88px, 18vw, 210px)" }}
-          >
-            {serving ? String(serving.tokenNumber ?? serving.id) : "—"}
-          </p>
-          {serving && (
-            <p className="mt-6 text-2xl text-primary-foreground/80">
-              {serving.farmerName ?? serving.farmer?.fullName ?? ""}
-            </p>
+          {serving ? (
+            <>
+              <p
+                className="font-mono leading-none font-bold text-[#FFD9A8] drop-shadow-[0_0_32px_rgba(201,132,60,0.45)]"
+                style={{ fontSize: "clamp(120px, 18vw, 220px)" }}
+              >
+                {String(serving.tokenNumber ?? serving.id)}
+              </p>
+              <p className="mt-6 text-3xl font-semibold text-primary-foreground">
+                {farmerNameOf(serving)}
+              </p>
+              <p className="mt-1 text-xl text-primary-foreground/70">
+                {cropNameOf(serving)}
+                {quantityOf(serving) !== undefined ? ` · ${quantityOf(serving)}` : ""}
+              </p>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-10 text-primary-foreground/70">
+              <Coffee size={56} strokeWidth={1.25} />
+              <p className="text-3xl font-medium">No one being served right now</p>
+              <p className="text-base text-primary-foreground/50">
+                The next token will appear here as soon as it is called.
+              </p>
+            </div>
           )}
         </div>
       </section>
@@ -99,17 +123,22 @@ function DisplayPage() {
         {waiting.length === 0 ? (
           <p className="mt-6 text-primary-foreground/50">No farmers in queue yet.</p>
         ) : (
-          <div className="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-5 lg:grid-cols-8">
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {waiting.map((t) => (
               <div
                 key={t.id}
-                className="rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 py-4 text-center font-mono text-3xl font-medium"
+                className="rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 px-4 py-4 text-center"
               >
-                {String(t.tokenNumber ?? t.id)}
+                <p className="font-mono text-4xl font-medium text-primary-foreground">
+                  {String(t.tokenNumber ?? t.id)}
+                </p>
+                <p className="mt-2 truncate text-sm text-primary-foreground/80">{farmerNameOf(t)}</p>
+                <p className="truncate text-xs text-primary-foreground/55">{cropNameOf(t)}</p>
               </div>
             ))}
           </div>
         )}
+
         <div className="mt-7 flex items-center gap-4">
           <span className="text-[10px] font-semibold text-primary-foreground/45 uppercase">Next up</span>
           <div className="relative h-0.5 flex-1 overflow-hidden bg-primary-foreground/10"><span className="queue-progress absolute inset-y-0 left-0 w-1/3 bg-secondary" /></div>

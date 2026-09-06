@@ -24,9 +24,12 @@ import {
   cropNameOf,
   farmerNameOf,
   normalizeStatus,
+  quantityOf,
   type Center,
+  type Procurement,
   type QueueToken,
 } from "@/lib/api";
+
 import { useRequireRole } from "@/lib/auth";
 
 export const Route = createFileRoute("/staff")({
@@ -106,11 +109,20 @@ function StaffPage() {
   const [grade, setGrade] = useState<Grade>("A");
   const [pricePerUnit, setPricePerUnit] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ total: number; qty: number; price: number } | null>(null);
+  const [result, setResult] = useState<
+    | {
+        totalAmount: number;
+        actualQuantity: number;
+        pricePerUnit: number;
+        qualityGrade: string;
+        paymentStatus?: string;
+      }
+    | null
+  >(null);
 
   const record = useMutation({
     mutationFn: () =>
-      api<Record<string, unknown>>("/procurement", {
+      api<Procurement>("/procurement", {
         method: "POST",
         body: {
           tokenId: called?.id,
@@ -120,10 +132,15 @@ function StaffPage() {
         },
       }),
     onSuccess: (data) => {
-      const qty = Number(actualQty);
-      const price = Number(pricePerUnit);
-      const total = Number(data?.["totalAmount"] ?? data?.["total"] ?? qty * price);
-      setResult({ total, qty, price });
+      const actualQuantity = data?.actualQuantity ?? Number(actualQty);
+      const price = data?.pricePerUnit ?? Number(pricePerUnit);
+      setResult({
+        totalAmount: data?.totalAmount ?? actualQuantity * price,
+        actualQuantity,
+        pricePerUnit: price,
+        qualityGrade: data?.qualityGrade ?? grade,
+        ...(data?.paymentStatus ? { paymentStatus: data.paymentStatus } : {}),
+      });
       setFormError(null);
       setActualQty("");
       setPricePerUnit("");
@@ -132,6 +149,7 @@ function StaffPage() {
     },
     onError: (e) => setFormError(e instanceof Error ? e.message : "Could not record procurement."),
   });
+
 
   function submitProcurement(e: React.FormEvent) {
     e.preventDefault();
@@ -232,7 +250,7 @@ function StaffPage() {
                         </td>
                         <td className="px-4 py-3">{farmerNameOf(t)}</td>
                         <td className="px-4 py-3">{cropNameOf(t)}</td>
-                        <td className="px-4 py-3 text-right font-mono">{t.quantity ?? "—"}</td>
+                        <td className="px-4 py-3 text-right font-mono">{quantityOf(t) ?? "—"}</td>
                         <td className="px-4 py-3">
                           <StatusBadge status={t.status} />
                         </td>
@@ -315,11 +333,18 @@ function StaffPage() {
                     Computed total
                   </p>
                   <p className="mt-1 font-mono text-3xl font-bold text-primary">
-                    ₹{result.total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+                    ₹{result.totalAmount.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                   </p>
                   <p className="mt-1 font-mono text-xs text-muted-foreground">
-                    {result.qty} × ₹{result.price} · grade {grade}
+                    {result.actualQuantity} × ₹{result.pricePerUnit} · grade {result.qualityGrade}
                   </p>
+                  {result.paymentStatus && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Payment status:{" "}
+                      <span className="font-medium text-foreground">{result.paymentStatus}</span>
+                    </p>
+                  )}
+
                 </div>
               )}
             </Card>

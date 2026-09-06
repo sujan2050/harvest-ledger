@@ -15,7 +15,7 @@ import {
   Skeleton,
   TextInput,
 } from "@/components/ui-bits";
-import { api, asArray, type Center, type CropType } from "@/lib/api";
+import { api, asArray, centerCapacityOf, centerHoursOf, type Center, type CropType } from "@/lib/api";
 import { useRequireRole } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -90,7 +90,13 @@ function CentersPanel() {
     queryKey: ["centers"],
     queryFn: async () => asArray<Center>(await api("/centers")),
   });
-  const [form, setForm] = useState({ name: "", location: "", capacity: "", operatingHours: "" });
+  const [form, setForm] = useState({
+    name: "",
+    location: "",
+    capacityPerDay: "",
+    operatingStart: "",
+    operatingEnd: "",
+  });
   const [error, setError] = useState<string | null>(null);
 
   const add = useMutation({
@@ -100,18 +106,20 @@ function CentersPanel() {
         body: {
           name: form.name.trim(),
           location: form.location.trim(),
-          capacity: Number(form.capacity) || 0,
-          operatingHours: form.operatingHours.trim(),
+          capacityPerDay: Number(form.capacityPerDay) || 0,
+          operatingStart: form.operatingStart ? `${form.operatingStart}:00` : null,
+          operatingEnd: form.operatingEnd ? `${form.operatingEnd}:00` : null,
         },
       }),
     onSuccess: () => {
-      setForm({ name: "", location: "", capacity: "", operatingHours: "" });
+      setForm({ name: "", location: "", capacityPerDay: "", operatingStart: "", operatingEnd: "" });
       setError(null);
       void qc.invalidateQueries({ queryKey: ["centers"] });
       toast.success("Center added successfully");
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Could not add centre."),
   });
+
 
   return (
     <div className="space-y-6">
@@ -148,8 +156,9 @@ function CentersPanel() {
                   <tr key={c.id} className={i % 2 === 1 ? "bg-background" : undefined}>
                     <td className="px-4 py-3 font-medium">{c.name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{c.location ?? "—"}</td>
-                    <td className="px-4 py-3 text-right font-mono">{c.capacity ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{c.operatingHours ?? "—"}</td>
+                    <td className="px-4 py-3 text-right font-mono">{centerCapacityOf(c)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{centerHoursOf(c)}</td>
+
                   </tr>
                 ))}
               </tbody>
@@ -176,22 +185,34 @@ function CentersPanel() {
               onChange={(e) => setForm({ ...form, location: e.target.value })}
             />
           </Field>
-          <Field label="Capacity">
+          <Field label="Capacity per day">
             <TextInput
               type="number"
               min="0"
-              value={form.capacity}
-              onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+              value={form.capacityPerDay}
+              onChange={(e) => setForm({ ...form, capacityPerDay: e.target.value })}
               className="text-right font-mono"
             />
           </Field>
-          <Field label="Operating hours">
-            <TextInput
-              value={form.operatingHours}
-              onChange={(e) => setForm({ ...form, operatingHours: e.target.value })}
-              placeholder="09:00 – 17:00"
-            />
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Opens at">
+              <TextInput
+                type="time"
+                value={form.operatingStart}
+                onChange={(e) => setForm({ ...form, operatingStart: e.target.value })}
+                className="font-mono"
+              />
+            </Field>
+            <Field label="Closes at">
+              <TextInput
+                type="time"
+                value={form.operatingEnd}
+                onChange={(e) => setForm({ ...form, operatingEnd: e.target.value })}
+                className="font-mono"
+              />
+            </Field>
+          </div>
+
           <div className="sm:col-span-2">
             <ErrorText>{error}</ErrorText>
             <Button type="submit" disabled={add.isPending} className="mt-2">

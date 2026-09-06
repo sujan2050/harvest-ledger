@@ -106,7 +106,10 @@ export interface Center {
   id: number;
   name: string;
   location?: string;
+  capacityPerDay?: number;
   capacity?: number;
+  operatingStart?: string;
+  operatingEnd?: string;
   operatingHours?: string;
 }
 
@@ -117,6 +120,15 @@ export interface CropType {
   unit?: string;
   basePrice?: number;
   mspPrice?: number;
+}
+
+export interface Procurement {
+  id?: number;
+  totalAmount?: number;
+  pricePerUnit?: number;
+  qualityGrade?: string;
+  paymentStatus?: string;
+  actualQuantity?: number;
 }
 
 export interface FarmerProfile {
@@ -141,9 +153,11 @@ export interface QueueToken {
   farmer?: { fullName?: string; name?: string };
   cropType?: { name?: string } | string;
   cropTypeName?: string;
+  estimatedQuantity?: number;
   quantity?: number;
   centerId?: number;
   centerName?: string;
+  calledAt?: string;
   createdAt?: string;
 }
 
@@ -153,7 +167,30 @@ export function farmerNameOf(t: QueueToken): string {
 
 export function cropNameOf(t: QueueToken): string {
   if (typeof t.cropType === "string") return t.cropType;
-  return t.cropType?.name ?? t.cropTypeName ?? "—";
+  return t.cropTypeName ?? t.cropType?.name ?? "—";
+}
+
+export function quantityOf(t: QueueToken): number | undefined {
+  return t.estimatedQuantity ?? t.quantity;
+}
+
+/** "08:00:00" -> "08:00" */
+export function formatTime(value: string | undefined): string | null {
+  if (!value) return null;
+  const m = /^(\d{1,2}):(\d{2})/.exec(value);
+  return m ? `${m[1]!.padStart(2, "0")}:${m[2]}` : value;
+}
+
+export function centerCapacityOf(c: Center): number | string {
+  return c.capacityPerDay ?? c.capacity ?? "—";
+}
+
+export function centerHoursOf(c: Center): string {
+  const start = formatTime(c.operatingStart);
+  const end = formatTime(c.operatingEnd);
+  if (start && end) return `${start} – ${end}`;
+  if (start) return start;
+  return c.operatingHours ?? "—";
 }
 
 export function normalizeStatus(status: string | undefined): QueueStatus {
@@ -175,3 +212,4 @@ export function asArray<T>(value: unknown): T[] {
   }
   return [];
 }
+
