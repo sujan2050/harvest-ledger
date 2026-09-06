@@ -222,10 +222,16 @@ function FarmerPage() {
                     {Array.from({ length: 25 }).map((_, i) => <span key={i} className={i % 3 ? "size-1 bg-primary" : "size-1"} />)}
                   </div>
                   <div className="my-5 border-t border-dashed border-border" />
-                  <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
                     <span>{current.centerName ?? centerName ?? "Centre"}</span>
                     <span className="text-border">•</span>
                     <span>{cropNameOf(current)}</span>
+                    {quantityOf(current) !== undefined && (
+                      <>
+                        <span className="text-border">•</span>
+                        <span className="font-mono">{quantityOf(current)}</span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <Card title="Live status" icon={<Clock size={20} className="text-muted-foreground" />}>
@@ -240,7 +246,13 @@ function FarmerPage() {
                         ? "Procurement recorded. Thank you."
                         : "Please wait, your token will be called shortly."}
                   </p>
+                  {normalizeStatus(current.status) === "CALLED" && current.calledAt && (
+                    <p className="mt-2 font-mono text-xs text-muted-foreground">
+                      Called at {new Date(current.calledAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  )}
                 </Card>
+
               </>
             ) : (
               <Card>
