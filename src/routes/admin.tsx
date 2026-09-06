@@ -15,7 +15,7 @@ import {
   Skeleton,
   TextInput,
 } from "@/components/ui-bits";
-import { api, asArray, type Center, type CropType } from "@/lib/api";
+import { api, asArray, centerCapacityOf, centerHoursOf, type Center, type CropType } from "@/lib/api";
 import { useRequireRole } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -90,7 +90,13 @@ function CentersPanel() {
     queryKey: ["centers"],
     queryFn: async () => asArray<Center>(await api("/centers")),
   });
-  const [form, setForm] = useState({ name: "", location: "", capacity: "", operatingHours: "" });
+  const [form, setForm] = useState({
+    name: "",
+    location: "",
+    capacityPerDay: "",
+    operatingStart: "",
+    operatingEnd: "",
+  });
   const [error, setError] = useState<string | null>(null);
 
   const add = useMutation({
@@ -100,18 +106,20 @@ function CentersPanel() {
         body: {
           name: form.name.trim(),
           location: form.location.trim(),
-          capacity: Number(form.capacity) || 0,
-          operatingHours: form.operatingHours.trim(),
+          capacityPerDay: Number(form.capacityPerDay) || 0,
+          operatingStart: form.operatingStart ? `${form.operatingStart}:00` : null,
+          operatingEnd: form.operatingEnd ? `${form.operatingEnd}:00` : null,
         },
       }),
     onSuccess: () => {
-      setForm({ name: "", location: "", capacity: "", operatingHours: "" });
+      setForm({ name: "", location: "", capacityPerDay: "", operatingStart: "", operatingEnd: "" });
       setError(null);
       void qc.invalidateQueries({ queryKey: ["centers"] });
       toast.success("Center added successfully");
     },
     onError: (e) => setError(e instanceof Error ? e.message : "Could not add centre."),
   });
+
 
   return (
     <div className="space-y-6">
