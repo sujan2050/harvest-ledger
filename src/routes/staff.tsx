@@ -333,11 +333,18 @@ function StaffPage() {
                     Computed total
                   </p>
                   <p className="mt-1 font-mono text-3xl font-bold text-primary">
-                    ₹{result.total.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+                    ₹{result.totalAmount.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                   </p>
                   <p className="mt-1 font-mono text-xs text-muted-foreground">
-                    {result.qty} × ₹{result.price} · grade {grade}
+                    {result.actualQuantity} × ₹{result.pricePerUnit} · grade {result.qualityGrade}
                   </p>
+                  {result.paymentStatus && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Payment status:{" "}
+                      <span className="font-medium text-foreground">{result.paymentStatus}</span>
+                    </p>
+                  )}
+
                 </div>
               )}
             </Card>
