@@ -24,9 +24,12 @@ import {
   cropNameOf,
   farmerNameOf,
   normalizeStatus,
+  quantityOf,
   type Center,
+  type Procurement,
   type QueueToken,
 } from "@/lib/api";
+
 import { useRequireRole } from "@/lib/auth";
 
 export const Route = createFileRoute("/staff")({
