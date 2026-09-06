@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/farmer_procurement_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:changeme}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET:change_this_to_a_long_random_secret_key_minimum_32_characters}
+  expiration-ms: 86400000
