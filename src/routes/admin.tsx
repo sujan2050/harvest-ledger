@@ -148,8 +148,9 @@ function CentersPanel() {
                   <tr key={c.id} className={i % 2 === 1 ? "bg-background" : undefined}>
                     <td className="px-4 py-3 font-medium">{c.name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{c.location ?? "—"}</td>
-                    <td className="px-4 py-3 text-right font-mono">{c.capacity ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{c.operatingHours ?? "—"}</td>
+                    <td className="px-4 py-3 text-right font-mono">{centerCapacityOf(c)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{centerHoursOf(c)}</td>
+
                   </tr>
                 ))}
               </tbody>
